@@ -5,7 +5,11 @@
 #include <string.h>
 #include <windows.h>
 using namespace std;
-
+struct passwordComb {
+	string site;
+	string username;
+	string password;
+};
 
 //Main
 int main() {
@@ -13,13 +17,14 @@ int main() {
 	DWORD mode = 0;
 	GetConsoleMode(hStdin, &mode);
 	SetConsoleMode(hStdin, mode & (~ENABLE_ECHO_INPUT));
-	map<string, string> passwords;
+	int lim = 94;
+	map<int, passwordComb> passwords;
     string masterUser = "Toolie", masterPassword = "Cyberlights";
-	string username, password, exitcode;
-    string keyword = "TOBERANDOMIZEDLATER";
-	FILE *userdata, *passdata;
+	string username, password, site, exitcode;
+	FILE *userdata, *passdata, *sitedata;
 	userdata = fopen("usernames.txt", "a");
 	passdata = fopen("passwords.txt", "a");
+	sitedata = fopen("sites.txt", "a");
 	if (userdata == NULL) {
 		fclose(userdata);
 		userdata = fopen("usernames.txt", "w");
@@ -30,22 +35,53 @@ int main() {
 		passdata = fopen("passwords.txt", "w");
 		fclose(passdata);
 	}
+	if (sitedata == NULL) {
+		fclose(sitedata);
+		sitedata = fopen("sites.txt", "w");
+		fclose(sitedata);
+	}
 	bool exit = false;
 	while (exit == false) {
 		userdata = fopen("usernames.txt", "a");
 		passdata = fopen("passwords.txt", "a");
+		sitedata = fopen("sites.txt", "a");
+		cout << "Insert site here: ";
+		cin >> site;
+		int siteLength = site.length();
+		char* sitecharArray = new char[siteLength + 1];
+		strcpy(sitecharArray, site.c_str());
+		fprintf(userdata, sitecharArray);
 		cout << "Insert username here: ";
 		cin >> username;
 		int usernameLength = username.length();
 		char* usercharArray = new char[usernameLength + 1];
 		strcpy(usercharArray, username.c_str());
 		fprintf(userdata, usercharArray);
-		cout << "Insert password here: ";
-		cin >> password;
-		int passLength = password.length();
-		char* passcharArray = new char[passLength + 1];
-		strcpy(passcharArray, password.c_str());
-		fprintf(passdata, passcharArray);
+		string generation;
+		cout << "Do you have a password already? [Y]/[N] ";
+		cin >> generation;
+		if (generation == "N") {
+			int passLength;
+			cout << "How long do you want the password to be? ";
+			cin >> passLength;
+			string password;
+			char* passcharArray = new char[passLength + 1];
+			for (int i = 0; i < passLength; i++) {
+				int asciiValue = rand() % lim + 33;
+				password += char(asciiValue);
+				passcharArray[i] = char(asciiValue);
+			}
+			strcpy(passcharArray, password.c_str());
+			fprintf(passdata, passcharArray);
+		}
+		else {
+			cout << "Insert password here: ";
+			cin >> password;
+			int passLength = password.length();
+			char* passcharArray = new char[passLength + 1];
+			strcpy(passcharArray, password.c_str());
+			fprintf(passdata, passcharArray);
+		}
 		cout << "Do you want to save more? [Y] [N]";
 		cin >> exitcode;
 		if (exitcode == "N") {
@@ -54,7 +90,7 @@ int main() {
 			fclose(passdata);
 		}
 	}
-	map<string, string>::iterator it = passwords.begin();
+	map<int, passwordComb>::iterator it = passwords.begin();
     string insertedUser, insertedPass;
     cout << "Insert username: ";
     cin >> insertedUser;
@@ -63,8 +99,8 @@ int main() {
 	int remainingAttempts = 3;
     if (insertedUser == masterUser && insertedPass == masterPassword) {
         while (it != passwords.end()) {
-            cout << "Username: " << it->first
-                << ", Password: " << it->second << endl;
+            cout << "Site: " << (it->second).site << "Username: " << (it->second).username
+                << ", Password: " << (it->second).password << endl;
             ++it;
         }
     }
@@ -76,11 +112,10 @@ int main() {
 			cin >> insertedPass;
 			if (insertedUser == masterUser && insertedPass == masterPassword) {
 				while (it != passwords.end()) {
-					cout << "Username: " << it->first
-						<< ", Password: " << it->second << endl;
+					cout << "Site: " << (it->second).site << "Username: " << (it->second).username
+						<< ", Password: " << (it->second).password << endl;
 					++it;
 				}
-				exit;
 			}
 			else {
 				remainingAttempts--;
