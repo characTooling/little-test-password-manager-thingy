@@ -1,5 +1,6 @@
 // first test
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <string>
 #include <string.h>
@@ -21,46 +22,22 @@ int main() {
 	map<int, passwordComb> passwords;
     string masterUser = "Toolie", masterPassword = "Cyberlights";
 	string username, password, site, exitcode;
-	FILE *userdata, *passdata, *sitedata;
-	userdata = fopen("usernames.txt", "a");
-	passdata = fopen("passwords.txt", "a");
-	sitedata = fopen("sites.txt", "a");
-	if (userdata == NULL) {
-		fclose(userdata);
-		userdata = fopen("usernames.txt", "w");
-		fclose(userdata);
-	}
-	if (passdata == NULL) {
-		fclose(passdata);
-		passdata = fopen("passwords.txt", "w");
-		fclose(passdata);
-	}
-	if (sitedata == NULL) {
-		fclose(sitedata);
-		sitedata = fopen("sites.txt", "w");
-		fclose(sitedata);
-	}
+	ofstream userdata, passdata, sitedata;
+	userdata.open("usernames.txt", ios::ate);
+	passdata.open("passwords.txt", ios::ate);
+	sitedata.open("sites.txt", ios::ate);
 	int counter = 1;
 	bool exit = false;
 	while (exit == false) {
 		passwordComb passwordCombination;
-		userdata = fopen("usernames.txt", "a");
-		passdata = fopen("passwords.txt", "a");
-		sitedata = fopen("sites.txt", "a");
 		cout << "Insert site here: ";
 		cin >> site;
 		passwordCombination.site = site;
-		int siteLength = site.length();
-		char* sitecharArray = new char[siteLength + 1];
-		strcpy(sitecharArray, site.c_str());
-		fprintf(userdata, sitecharArray);
+		sitedata << site << '\n';
 		cout << "Insert username here: ";
 		cin >> username;
 		passwordCombination.username = username;
-		int usernameLength = username.length();
-		char* usercharArray = new char[usernameLength + 1];
-		strcpy(usercharArray, username.c_str());
-		fprintf(userdata, usercharArray);
+		userdata << username << '\n';
 		string generation;
 		cout << "Do you have a password already? [Y]/[N] ";
 		cin >> generation;
@@ -69,24 +46,17 @@ int main() {
 			cout << "How long do you want the password to be? ";
 			cin >> passLength;
 			string password;
-			char* passcharArray = new char[passLength + 1];
 			for (int i = 0; i < passLength; i++) {
 				int asciiValue = rand() % lim + 33;
 				password += char(asciiValue);
-				passcharArray[i] = char(asciiValue);
 			}
-
-			strcpy(passcharArray, password.c_str());
-			fprintf(passdata, passcharArray);
+			passdata << password << '\n';
 			passwordCombination.password = password;
 		}
 		else {
 			cout << "Insert password here: ";
 			cin >> password;
-			int passLength = password.length();
-			char* passcharArray = new char[passLength + 1];
-			strcpy(passcharArray, password.c_str());
-			fprintf(passdata, passcharArray);
+			passdata << password << '\n';
 			passwordCombination.password = password;
 		}
 		passwords[counter] = {passwordCombination};
@@ -95,8 +65,9 @@ int main() {
 		cin >> exitcode;
 		if (exitcode == "N") {
 			exit = true;
-			fclose(userdata);
-			fclose(passdata);
+			sitedata.close();
+			userdata.close();
+			passdata.close();
 		}
 	}
 	map<int, passwordComb>::iterator it = passwords.begin();
