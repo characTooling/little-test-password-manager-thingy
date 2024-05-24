@@ -40,19 +40,23 @@ int main() {
 		sitedata = fopen("sites.txt", "w");
 		fclose(sitedata);
 	}
+	int counter = 1;
 	bool exit = false;
 	while (exit == false) {
+		passwordComb passwordCombination;
 		userdata = fopen("usernames.txt", "a");
 		passdata = fopen("passwords.txt", "a");
 		sitedata = fopen("sites.txt", "a");
 		cout << "Insert site here: ";
 		cin >> site;
+		passwordCombination.site = site;
 		int siteLength = site.length();
 		char* sitecharArray = new char[siteLength + 1];
 		strcpy(sitecharArray, site.c_str());
 		fprintf(userdata, sitecharArray);
 		cout << "Insert username here: ";
 		cin >> username;
+		passwordCombination.username = username;
 		int usernameLength = username.length();
 		char* usercharArray = new char[usernameLength + 1];
 		strcpy(usercharArray, username.c_str());
@@ -71,8 +75,10 @@ int main() {
 				password += char(asciiValue);
 				passcharArray[i] = char(asciiValue);
 			}
+
 			strcpy(passcharArray, password.c_str());
 			fprintf(passdata, passcharArray);
+			passwordCombination.password = password;
 		}
 		else {
 			cout << "Insert password here: ";
@@ -81,7 +87,10 @@ int main() {
 			char* passcharArray = new char[passLength + 1];
 			strcpy(passcharArray, password.c_str());
 			fprintf(passdata, passcharArray);
+			passwordCombination.password = password;
 		}
+		passwords[counter] = {passwordCombination};
+		counter++;
 		cout << "Do you want to save more? [Y] [N]";
 		cin >> exitcode;
 		if (exitcode == "N") {
@@ -92,14 +101,12 @@ int main() {
 	}
 	map<int, passwordComb>::iterator it = passwords.begin();
     string insertedUser, insertedPass;
-    cout << "Insert username: ";
-    cin >> insertedUser;
-    cout << "Insert password: ";
-    cin >> insertedPass;
+	insertedUser = masterUser;
+	insertedPass = masterPassword;
 	int remainingAttempts = 3;
     if (insertedUser == masterUser && insertedPass == masterPassword) {
         while (it != passwords.end()) {
-            cout << "Site: " << (it->second).site << "Username: " << (it->second).username
+            cout << "Site: " << (it->second).site << ", Username: " << (it->second).username
                 << ", Password: " << (it->second).password << endl;
             ++it;
         }
@@ -112,7 +119,7 @@ int main() {
 			cin >> insertedPass;
 			if (insertedUser == masterUser && insertedPass == masterPassword) {
 				while (it != passwords.end()) {
-					cout << "Site: " << (it->second).site << "Username: " << (it->second).username
+					cout << "Site: " << (it->second).site << ", Username: " << (it->second).username
 						<< ", Password: " << (it->second).password << endl;
 					++it;
 				}
